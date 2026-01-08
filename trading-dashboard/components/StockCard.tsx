@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
 // This component displays a single stock with all its info
 // Shows: ticker, quantity, prices, and P&L calculations
 
-import { useEffect, useState } from 'react';
-import { Stock } from '@/types/stock';
-import { getCurrentPrice } from '@/lib/stockApi';
-import { calculateStockPnL } from '@/lib/calculations';
-import { formatCurrency, formatPercent } from '@/lib/calculations';
-import { Button } from '@/components/ui/button';
-import { Loader2, TrendingUp, TrendingDown, X } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { Stock } from "@/types/stock";
+import { getCurrentPrice } from "@/lib/stockApi";
+import { calculateStockPnL } from "@/lib/calculations";
+import { formatCurrency, formatPercent } from "@/lib/calculations";
+import { Button } from "@/components/ui/button";
+import { Loader2, TrendingUp, TrendingDown, X } from "lucide-react";
 
 interface StockCardProps {
   stock: Stock;
@@ -31,7 +31,7 @@ export function StockCard({ stock, onRemove }: StockCardProps) {
         setCurrentPrice(price);
       } catch (err) {
         console.error(`Error fetching price for ${stock.ticker}:`, err);
-        setError('Failed to fetch price');
+        setError("Failed to fetch price");
       } finally {
         setLoading(false);
       }
@@ -76,12 +76,16 @@ export function StockCard({ stock, onRemove }: StockCardProps) {
   const isProfit = stockWithPrice.pnl >= 0;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 group">
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-2xl font-bold text-gray-800">{stock.ticker}</h3>
-          <p className="text-sm text-gray-500">{stock.quantity} shares</p>
+          <h3 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+            {stock.ticker}
+          </h3>
+          <p className="text-sm text-gray-500 font-medium">
+            {stock.quantity} shares
+          </p>
         </div>
         <Button
           variant="ghost"
@@ -97,12 +101,16 @@ export function StockCard({ stock, onRemove }: StockCardProps) {
       <div className="space-y-3 mb-4">
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-600">Current Price:</span>
-          <span className="font-semibold text-gray-800">{formatCurrency(currentPrice)}</span>
+          <span className="font-semibold text-gray-800">
+            {formatCurrency(currentPrice)}
+          </span>
         </div>
 
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-600">Purchase Price:</span>
-          <span className="text-gray-700">{formatCurrency(stock.purchasePrice)}</span>
+          <span className="text-gray-700">
+            {formatCurrency(stock.purchasePrice)}
+          </span>
         </div>
 
         <div className="border-t pt-3">
@@ -116,12 +124,16 @@ export function StockCard({ stock, onRemove }: StockCardProps) {
 
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-600">Cost Basis:</span>
-          <span className="text-gray-700">{formatCurrency(stockWithPrice.costBasis)}</span>
+          <span className="text-gray-700">
+            {formatCurrency(stockWithPrice.costBasis)}
+          </span>
         </div>
       </div>
 
       {/* P&L Section */}
-      <div className={`border-t pt-4 ${isProfit ? 'bg-green-50' : 'bg-red-50'} -mx-6 px-6 -mb-6 pb-6 rounded-b-lg`}>
+      <div
+        className={`border-t pt-4 ${isProfit ? "bg-green-50" : "bg-red-50"} -mx-6 px-6 -mb-6 pb-6 rounded-b-lg`}
+      >
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             {isProfit ? (
@@ -132,10 +144,14 @@ export function StockCard({ stock, onRemove }: StockCardProps) {
             <span className="text-sm font-medium text-gray-700">P&L:</span>
           </div>
           <div className="text-right">
-            <div className={`text-lg font-bold ${isProfit ? 'text-green-700' : 'text-red-700'}`}>
+            <div
+              className={`text-lg font-bold ${isProfit ? "text-green-700" : "text-red-700"}`}
+            >
               {formatCurrency(stockWithPrice.pnl)}
             </div>
-            <div className={`text-sm ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+            <div
+              className={`text-sm ${isProfit ? "text-green-600" : "text-red-600"}`}
+            >
               {formatPercent(stockWithPrice.pnlPercent)}
             </div>
           </div>
