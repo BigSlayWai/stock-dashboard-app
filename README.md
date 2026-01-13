@@ -6,7 +6,7 @@ A real-time stock portfolio management application built with Next.js, allowing 
 
 ## 🌐 Live Demo
 
-*Coming soon - Deploy to Vercel to share your live demo link*
+**[View Live Project →](https://stock-dashboard-app-one.vercel.app/)**
 
 ## 📋 Table of Contents
 
