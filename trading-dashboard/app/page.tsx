@@ -49,26 +49,23 @@ export default function Dashboard() {
     fetchAllPrices();
   }, [stocks]);
 
-  // Function to fetch prices for all stocks
+  // Function to fetch prices for all stocks in parallel
   const fetchAllPrices = async () => {
     setRefreshing(true);
-    const updatedStocks: StockWithPrice[] = [];
 
-    for (const stock of stocks) {
-      try {
-        const currentPrice = await getCurrentPrice(stock.ticker);
-        const stockWithPrice = calculateStockPnL(stock, currentPrice);
-        updatedStocks.push(stockWithPrice);
+    const results = await Promise.allSettled(
+      stocks.map((stock) => getCurrentPrice(stock.ticker)),
+    );
 
-        // Small delay to avoid hitting rate limits
-        await new Promise((resolve) => setTimeout(resolve, 300));
-      } catch (error) {
-        console.error(`Failed to fetch price for ${stock.ticker}:`, error);
-        // If fetch fails, use purchase price as fallback
-        const stockWithPrice = calculateStockPnL(stock, stock.purchasePrice);
-        updatedStocks.push(stockWithPrice);
+    const updatedStocks: StockWithPrice[] = stocks.map((stock, i) => {
+      const result = results[i];
+      const currentPrice =
+        result.status === "fulfilled" ? result.value : stock.purchasePrice;
+      if (result.status === "rejected") {
+        console.error(`Failed to fetch price for ${stock.ticker}:`, result.reason);
       }
-    }
+      return calculateStockPnL(stock, currentPrice);
+    });
 
     setStocksWithPrices(updatedStocks);
     setRefreshing(false);

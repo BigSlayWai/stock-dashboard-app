@@ -12,19 +12,14 @@ export async function getCurrentPrice(symbol: string): Promise<number> {
 export async function getCurrentPrices(
   symbols: string[],
 ): Promise<Record<string, number>> {
-  const prices: Record<string, number> = {};
+  const results = await Promise.allSettled(symbols.map(getCurrentPrice));
 
-  for (const symbol of symbols) {
-    try {
-      prices[symbol] = await getCurrentPrice(symbol);
-      await new Promise((resolve) => setTimeout(resolve, 300));
-    } catch (error) {
-      console.error(`Failed to fetch price for ${symbol}:`, error);
-      prices[symbol] = 0;
-    }
-  }
-
-  return prices;
+  return Object.fromEntries(
+    symbols.map((symbol, i) => {
+      const result = results[i];
+      return [symbol, result.status === "fulfilled" ? result.value : 0];
+    }),
+  );
 }
 
 export async function searchSymbol(keywords: string): Promise<unknown[]> {
