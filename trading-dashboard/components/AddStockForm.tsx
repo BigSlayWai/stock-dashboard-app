@@ -1,8 +1,5 @@
 "use client";
 
-// This component is a form to add stocks to your portfolio
-// It's marked 'use client' because it uses React state and events
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -15,46 +12,51 @@ interface AddStockFormProps {
   }) => void;
 }
 
+interface FormErrors {
+  ticker?: string;
+  quantity?: string;
+  price?: string;
+}
+
 export function AddStockForm({ onAddStock }: AddStockFormProps) {
-  // State to track form inputs
   const [ticker, setTicker] = useState("");
   const [quantity, setQuantity] = useState("");
   const [purchasePrice, setPurchasePrice] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
 
-  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent page reload
+    e.preventDefault();
 
-    // Validate inputs
-    if (!ticker || !quantity || !purchasePrice) {
-      alert("Please fill in all fields");
-      return;
+    const newErrors: FormErrors = {};
+
+    if (!ticker.trim()) {
+      newErrors.ticker = "Ticker is required";
     }
 
-    // Convert strings to numbers
     const qty = parseFloat(quantity);
+    if (!quantity || isNaN(qty) || qty <= 0) {
+      newErrors.quantity = "Must be a positive number";
+    }
+
     const price = parseFloat(purchasePrice);
+    if (!purchasePrice || isNaN(price) || price <= 0) {
+      newErrors.price = "Must be a positive number";
+    }
 
-    // Validate numbers
-    if (isNaN(qty) || qty <= 0) {
-      alert("Quantity must be a positive number");
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
-    if (isNaN(price) || price <= 0) {
-      alert("Purchase price must be a positive number");
-      return;
-    }
+    setErrors({});
 
-    // Call the parent component's function to add the stock
     onAddStock({
-      ticker: ticker.toUpperCase().trim(), // Convert to uppercase, remove whitespace
+      ticker: ticker.toUpperCase().trim(),
       quantity: qty,
       purchasePrice: price,
-      purchaseDate: new Date().toISOString(), // Current date/time
+      purchaseDate: new Date().toISOString(),
     });
 
-    // Clear the form
     setTicker("");
     setQuantity("");
     setPurchasePrice("");
@@ -95,13 +97,21 @@ export function AddStockForm({ onAddStock }: AddStockFormProps) {
             type="text"
             placeholder="e.g., AAPL"
             value={ticker}
-            onChange={(e) => setTicker(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-gray-400"
-            required
+            onChange={(e) => {
+              setTicker(e.target.value);
+              if (errors.ticker) setErrors((prev) => ({ ...prev, ticker: undefined }));
+            }}
+            className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-gray-400 ${
+              errors.ticker ? "border-red-400" : "border-gray-300"
+            }`}
           />
-          <p className="text-xs text-gray-500 mt-1">
-            Stock symbol (e.g., AAPL for Apple)
-          </p>
+          {errors.ticker ? (
+            <p className="text-xs text-red-500 mt-1">{errors.ticker}</p>
+          ) : (
+            <p className="text-xs text-gray-500 mt-1">
+              Stock symbol (e.g., AAPL for Apple)
+            </p>
+          )}
         </div>
 
         {/* Quantity Input */}
@@ -118,11 +128,19 @@ export function AddStockForm({ onAddStock }: AddStockFormProps) {
             step="0.01"
             placeholder="e.g., 10"
             value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-gray-400"
-            required
+            onChange={(e) => {
+              setQuantity(e.target.value);
+              if (errors.quantity) setErrors((prev) => ({ ...prev, quantity: undefined }));
+            }}
+            className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-gray-400 ${
+              errors.quantity ? "border-red-400" : "border-gray-300"
+            }`}
           />
-          <p className="text-xs text-gray-500 mt-1">Number of shares</p>
+          {errors.quantity ? (
+            <p className="text-xs text-red-500 mt-1">{errors.quantity}</p>
+          ) : (
+            <p className="text-xs text-gray-500 mt-1">Number of shares</p>
+          )}
         </div>
 
         {/* Purchase Price Input */}
@@ -139,16 +157,23 @@ export function AddStockForm({ onAddStock }: AddStockFormProps) {
             step="0.01"
             placeholder="e.g., 150.00"
             value={purchasePrice}
-            onChange={(e) => setPurchasePrice(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-gray-400"
-            required
+            onChange={(e) => {
+              setPurchasePrice(e.target.value);
+              if (errors.price) setErrors((prev) => ({ ...prev, price: undefined }));
+            }}
+            className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-gray-400 ${
+              errors.price ? "border-red-400" : "border-gray-300"
+            }`}
           />
-          <p className="text-xs text-gray-500 mt-1">
-            Price per share when purchased
-          </p>
+          {errors.price ? (
+            <p className="text-xs text-red-500 mt-1">{errors.price}</p>
+          ) : (
+            <p className="text-xs text-gray-500 mt-1">
+              Price per share when purchased
+            </p>
+          )}
         </div>
 
-        {/* Submit Button */}
         <Button
           type="submit"
           className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-2.5 shadow-md hover:shadow-lg transition-all"
